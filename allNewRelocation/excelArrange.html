@@ -1,0 +1,302 @@
+<!DOCTYPE>
+<html>
+	<head>
+	<title> :: 엑셀 CSV 정리 프로그램 :: </title>
+		<link rel="stylesheet" href="./common/css/bootstrap.min.css"></link>
+		<style type="text/css">
+			#allConfToogle {
+				height:5px;
+				font-size:1px;
+				padding:0;
+				line-height:0px;
+			}
+			.nav-link {
+				color:#007bff;
+				cursor:pointer;
+			}
+			.dropdown-item {
+				cursor:pointer;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class='card mb-2'>
+			<div class='card-header'>
+				설정
+			</div>
+			<div style="padding:5px 0 5px 5px;">
+				<div class="input-group float-left" style="width:auto;">
+					<div class="input-group-prepend">
+						<label class="input-group-text" style="background-color:#fff;" for="dataType">데이터형식 선택</label>
+					</div>
+					<select class="form-control" id="dataType" name="dataType">
+						<option value="" selected>-- 데이터 형 --</option>
+						<option value="ucafe">카페24utf8</option>
+						<option value="ucafeorder">카페24utf8주문</option>
+						<option value="cafe">카페24</option>
+						<option value="cafeorder">카페24주문</option>
+						<option value="make">메이크샵</option>
+						<option value="xls">XLS</option>
+						<option value="csv">CSV</option>
+					</select>
+				</div>
+				<div class="float-left">&nbsp;</div>
+			</div>
+			<form name="arrangeFrm" action="" method="POST" target="procAr">
+			<input type="hidden" name="targetDomain" />
+			<input type="hidden" name="arrangeCount" value="0" />
+			<!-- <input type="submit" /> -->
+			<div id="loadDataArea" style="padding:5px 0 5px 5px;border:1px solid #dee2e6;">
+				<table id="dataConfig" class="table table-striped">
+					<colgroup>
+						<col width="45%" />
+						<col width="auto" />
+						<col width="45%" />
+					</colgroup>
+					<thead class="thead-dark">
+					<tr>
+						<th scope="col" style="text-align:center;">기존 파일명</th>
+						<th scope="col" style="text-align:center;"><img src="./image/icon/excel.png" height="22px;"/></th>
+						<th scope="col" style="text-align:center;">변환 파일명(설정)</th>
+					</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			</form>
+			<iframe name="procAr" frameborder="0" style="border:none; width:0; height:0;" id="procAr"></iframe><!--  -->
+		</div>
+		<script type="text/javascript" src="./common/js/jquery-3.2.1.js"></script>
+		<script type="text/javascript" src="./common/js/bootstrap.bundle.js"></script>
+		<script type="text/javascript">
+			var dataListFlag = false;
+			var dataCompleteCnt = 0;
+
+			function formAct(id) {
+				if (!$('select[name="dataType"]').find('option:selected').val()) {
+					parent.alertLayer('데이터 형태를 선택해 주세요.');
+				}
+				else if (!dataListFlag) {
+					parent.alertLayer('변환 할 데이터가 존재 하지 않습니다.');
+				}
+				else {
+					if ($('select[name="dataType"]').find('option:selected').val() == 'make' && $('input[name="afterFileName[]"]:eq(' + $('input[name="arrangeCount"]').val() + ')').val() == 'goods.csv') {
+						document.arrangeFrm.action = './common/php/makegoods.arrange.php';
+					}
+					frm = document.arrangeFrm;
+					frm.submit();
+				}
+			}
+			var ajaxProcess = function (targetUrl, param, sucFunc, errorFunc) {
+				//생성된 json 객체를 설정되어 있는 서버에 저장 -----------------------------
+				$.ajax({
+					dataType:"jsonp",jsonp:'callback',type : 'POST',url : targetUrl
+					,data : param//넘길 파라메타 값
+					,success: sucFunc
+					,error: errorFunc
+				});
+			}
+
+			var setProgress = function (objCount, type) {
+				var obj = $('#dataConfig tbody tr:eq(' + objCount + ')');
+				if (type == 'complate') {
+					obj.children('td:last').find('.status').text('(완료)');
+					obj.find('td').css('background', '#ccffff');
+					dataCompleteCnt++;
+					if ($('#dataConfig tbody tr').length === dataCompleteCnt) {
+						alert('데이터 변환 완료 되었습니다.');
+						$('input[name="arrangeCount"]').val(0);
+						dataCompleteCnt=0;
+					}
+					else {
+						$('input[name="arrangeCount"]').val(Number(objCount) + 1);
+						if ($('select[name="dataType"]').find('option:selected').val() == 'make' && $('input[name="afterFileName[]"]:eq(' + $('input[name="arrangeCount"]').val() + ')').val() == 'goods.csv') {
+							document.arrangeFrm.action = './common/php/makegoods.arrange.php';
+						}
+						else {
+							document.arrangeFrm.action = './common/php/' + $('select[name="dataType"]').find('option:selected').val() + '.arrange.php';
+						}
+						if ($('select[name="dataType"]').find('option:selected').val() != 'cafeorder' && $('select[name="dataType"]').find('option:selected').val() != 'ucafeorder') {
+							document.arrangeFrm.submit();
+							$('#dataConfig tbody tr:eq(' + (Number(objCount) + 1) + ') td:last .status').text('(진행중...)');
+						}
+						
+					}
+				}
+			}
+			
+			$(document).ready(function(){
+				var beforeFileChange = function() {
+					$('#fieldListRow').remove();
+					$('button[name="xlsReader"]').off();
+					$('#dataConfig tbody tr:first td:last').html('<button type="button" class="btn btn-primary" name="xlsReader">파일 로드</button>');
+					xlsReaderProc();
+				}
+
+				var fieldSync = function (obj, parentIndex, hlClass, selectorList, sortFl, target) {
+					//parentIndex = $('ul.fieldList').index($(this).parent('ul.fieldList'));
+								
+					obj.toggleClass(hlClass);
+					if (obj.hasClass(hlClass)) {
+						selectorList[parentIndex].push(obj.text());
+						if (sortFl && selectorList[parentIndex].length > 3) {
+							parent.alertLayer('정렬 순서는 최대 3개까지 적용 가능 합니다.');
+							obj.toggleClass(hlClass);
+							cnt = selectorList[parentIndex].indexOf(obj.text());
+							selectorList[parentIndex].splice(cnt, 1);
+							return selectorList;
+						}
+					}
+					else {
+						cnt = selectorList[parentIndex].indexOf(obj.text());
+						selectorList[parentIndex].splice(cnt, 1);
+					}
+
+					target.val(selectorList[parentIndex]);
+					//$('input[name="dataSort[]"]:eq(' + parentIndex + ')').val(selectorList[parentIndex]);
+					return selectorList;
+					
+				}
+
+				var xlsReaderProc = function() {
+					$('button[name="xlsReader"]').on('click', function(){
+						var selectorList = new Array();
+						var dateSelectorList = new Array();
+						
+						var selectorCnt = 0;
+
+						readParam = 'dataType=xlsReader';
+						readParam += '&targetFileName=' + $('select[name="beforeFileName[]"]').find('option:selected').val();
+						
+						var readSucFunc = function(obj) {
+							$('#dataConfig tbody tr:first td:last').html('');
+							$.each(obj.sheetList, function(key, sheetName) {
+								$('#dataConfig tbody tr:first td:last').append('<div style="margin-bottom:5px;"><div class="input-group" style="margin-bottom:1px;"> <div class="input-group-prepend" style="width:40%;"> <label class="input-group-text" style="width:100%;"><input type="hidden" name="sheetName[]" value="' + sheetName + '" />' + sheetName + ' 시트 정렬</label> </div> <input type="text" class="form-control" name="dataSort[]" id="sort' + sheetName + '" aria-describedby="basic-addon2" style="width:60%;" readonly /></div><div class="input-group" > <div class="input-group-prepend" style="width:40%;"> <label class="input-group-text" style="width:100%;">' + sheetName + ' 시트 날짜형</label> </div> <input type="text" class="form-control" name="sheetDate[]" id="date' + sheetName + '" aria-describedby="basic-addon2" style="width:60%;" readonly /></div></div>');
+							});
+							var fieldText = '';
+							$.each(obj.fieldList, function(sheetName, arrayField) {
+								var dateFieldText = '';
+								fieldText += '<div style="margin-bottom:5px;"><ul class="list-group list-group-horizontal fieldList" style="margin-bottom:1px;"><li class="list-group-item list-group-item-primary" style="font-size:13px;">정렬 필드 : ' + sheetName + '</li>';
+								dateFieldText += '<ul class="list-group list-group-horizontal dateFieldList" style="margin-bottom:1px;"><li class="list-group-item list-group-item-danger" style="font-size:13px;">날짜 필드 : ' + sheetName + '</i>';
+								$.each(arrayField, function(fieldKey, fieldName) {
+									fieldText += '<li class="list-group-item selector" style="font-size:13px;">' + fieldName + '</li>';
+									dateFieldText += '<li class="list-group-item dateSelector" style="font-size:13px;">' + fieldName + '</li>';
+								});
+								dateFieldText += '</ul>';
+								fieldText += '</ul>' + dateFieldText + '</div>';
+								selectorList[selectorCnt] = new Array();
+								dateSelectorList[selectorCnt] = new Array();
+								selectorCnt++;
+							});
+
+							$('#fieldSetArea').remove();
+							
+							$('#dataConfig tbody').append('<tr id="fieldSetArea"><td colspan="3"><div id="fieldListRow">' + fieldText + '</div></td></tr>');
+							if ($('#fieldListRow').width() >= $(window).width()) {
+								$('#fieldListRow').css({'width': (Math.ceil($(window).width()) - 40) + 'px','overflow-x':'scroll'});
+							}
+							
+							$('.fieldList li.selector').on('click', function(){
+								fieldListIndex = $('ul.fieldList').index($(this).parent('ul.fieldList'));
+
+								selectorList = fieldSync($(this), $('ul.fieldList').index($(this).parent('ul.fieldList')), "list-group-item-info", selectorList, true, $('input[name="dataSort[]"]:eq(' + fieldListIndex + ')'));
+							}).css('cursor', 'pointer');
+
+							$('.dateFieldList li.dateSelector').on('click', function(){
+								fieldListIndex = $('ul.dateFieldList').index($(this).parent('ul.dateFieldList'));
+
+								dateSelectorList = fieldSync($(this), $('ul.dateFieldList').index($(this).parent('ul.dateFieldList')), "list-group-item-warning", dateSelectorList, false, $('input[name="sheetDate[]"]:eq(' + fieldListIndex + ')'));
+							}).css('cursor', 'pointer');
+						}
+						
+						var readErrorFunc = function() {
+							parent.alertLayer('선택 된 xls 파일내 시트 조회에 실패 했습니다. ');
+						}
+
+						ajaxProcess('./common/php/excelListCheck.php', readParam, readSucFunc, readErrorFunc);
+					});
+				}
+
+				document.all.targetDomain.value = parent.document.all.targetDomain.value;
+
+				var excelList = new Array;
+
+				var selectListSet = function() {
+					$('select[name="beforeFileName[]"]').html('');
+					if (excelList.length >= 1) {
+						$.each(excelList, function(key, value) {
+							$('select[name="beforeFileName[]"]').append('<option value="' + value + '">' + value + '</option>');
+						});
+					}
+					else {
+						$('select[name="beforeFileName[]"]').append('<option>:: 관련 파일 없음 ::</option>');
+						$('select[name="beforeFileName[]"]').attr('disabled', true);
+					}
+				}
+				
+				var excelSelectBox = '<select class="form-control" id="beforeFileName" name="beforeFileName[]" style="width:auto;"></select>';
+				$('select[name="dataType"]').on({
+					'change' : function(){
+						document.arrangeFrm.action = './common/php/' + $(this).val() + '.arrange.php';
+						var sucFunc = function(obj){
+							var dataType = obj.dataType;
+							$('#dataConfig tbody').html('');
+							if (dataType == 'cafe' || dataType == 'cafeorder' || dataType == 'make') {
+								if (obj.dataList)
+								{
+									$.each(obj.dataList, function(key, fileInfo) {
+										$('#dataConfig tbody').append('<tr><td><input type="hidden" name="beforeFileName[]" value="' + fileInfo[0] + '" /><input type="hidden" name="afterFileName[]" value="' + fileInfo[1] + '" />' + fileInfo[0] + '</td><td align="center"><img src="./image/icon/excel.png" height="20px;"/></td><td><span class="float-left">' + fileInfo[1] + '</span><span class="status float-left"></span></td></tr>');
+										//$('#loadDataArea').append(fileInfo[0] + ' => ' + fileInfo[1] + '<br/>');
+									});
+									dataListFlag = true;
+								}
+								else {
+									$('#dataConfig tbody').append('<tr><td colspan="3" style="text-align:center;font-weight:bold;">관련 파일이 존재 하지 않습니다.</td></tr>');
+									dataListFlag = false;
+								}
+							}
+							else {
+								if (obj.dataList){
+								
+									excelList = new Array;
+									$.each(obj.dataList, function(key, fileName) {
+										excelList.push(fileName);
+									});
+
+									$('#dataConfig tbody').append('<tr><td align="center">' + excelSelectBox + '</td><td>&nbsp</td><td></td></tr>');
+
+									if (dataType == 'csv') {
+										$('select[name="beforeFileName[]"]').off();
+										$('#dataConfig tbody tr:first td:last').html('<div class="input-group mb-3 float-left" style="width:auto;max-width:400px;"><div class="input-group-prepend"><label class="input-group-text" style="background-color:#fff;" for="load_file">줄바꿈 뒤 문자 형태</label></div><select name="pregType"  class="custom-select"><option value="0">숫자,</option><option value="1">"숫자",</option><option value="2">숫자-숫자,</option><option value="3">"숫자-숫자",</option><option value="4">"문자",</option></select></div>');
+									}
+									else if (dataType == 'xls') {
+										$('select[name="beforeFileName[]"]').on('change', function(){
+											beforeFileChange();
+										});
+										beforeFileChange();
+									}
+									
+									dataListFlag = true;
+									selectListSet();
+								}
+								else {
+									$('#dataConfig tbody').append('<tr><td colspan="3" style="text-align:center;font-weight:bold;">관련 파일이 존재 하지 않습니다.</td></tr>');
+									dataListFlag = false;
+								}
+							}
+							$('#loadDataArea').show();
+						}
+						var errorFunc = function(){
+							parent.alertLayer('엑셀 데이터 리스트 출력에 실패 했습니다.');
+						}
+						param = 'dataType=' + $(this).val();
+						ajaxProcess('./common/php/excelListCheck.php', param, sucFunc, errorFunc);
+					}
+				});
+			});
+
+		</script>
+	</body>
+</html>

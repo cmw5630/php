@@ -1,0 +1,12 @@
+@import url('bootstrap.min.css');
+
+table thead tr th {text-align:center;}
+table tr th div {
+	text-align:center;
+	margin-top:5px;
+}
+table tbody tr td input[type="text"]{width:150px;}
+.table tbody tr th, .table tbody tr td {padding:3px;}
+.card {display:block;}
+.change {margin-right:2px;}
+.config_area_on {background-color:#99ccff;}

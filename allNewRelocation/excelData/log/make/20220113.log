@@ -1,0 +1,81 @@
+#############################################
+[log start time] : 2022-01-13 09:44:20
+[target domain] : kinglionjay.godomall.com
+
+---------------------------------------------
+[arrange start time] : 2022-01-13 09:44:20
+[arrange data name] : brand_cds.xml => goods.csv
+[arrange before data size] : 4.73 MB
+[sort field name] : 등록일자, 상품 고유번호
+[arrange row count] : before count 1315 / after count 1315
+[arrange end time] : 2022-01-13 09:44:22
+---------------------------------------------
+
+[log end time] : 2022-01-13 09:44:22
+#############################################
+#############################################
+[log start time] : 2022-01-13 09:46:19
+[target domain] : kinglionjay.godomall.com
+
+---------------------------------------------
+[arrange start time] : 2022-01-13 09:46:19
+[arrange data name] : member_df.csv => member_df.csv
+[arrange before data size] : 1.82 MB
+[sort field name] : 가입일
+[arrange row count] : before count 6351 / after count 6351
+[arrange end time] : 2022-01-13 09:46:20
+---------------------------------------------
+
+[log end time] : 2022-01-13 09:46:20
+#############################################
+#############################################
+[log start time] : 2022-01-13 09:46:36
+[target domain] : kinglionjay.godomall.com
+
+---------------------------------------------
+[arrange start time] : 2022-01-13 09:46:36
+[arrange data name] : 게시글_kinglion_20220106.csv => board_kinglion_20220106.csv
+[arrange before data size] : 8.65 MB
+[sort field name] : 그룹번호, 답글여부, 날짜
+[arrange row count] : before count 13751 / after count 13751
+[arrange end time] : 2022-01-13 09:46:40
+---------------------------------------------
+[arrange start time] : 2022-01-13 09:46:40
+[arrange data name] : 게시글_kinglion_board3_20220106.csv => board_kinglion_board3_20220106.csv
+[arrange before data size] : 3.25 MB
+[sort field name] : 그룹번호, 답글여부, 날짜
+[arrange row count] : before count 8105 / after count 8105
+[arrange end time] : 2022-01-13 09:46:42
+---------------------------------------------
+[arrange start time] : 2022-01-13 09:46:42
+[arrange data name] : 댓글_kinglion_20220106.csv => comment_kinglion_20220106.csv
+[arrange before data size] : 0.00 MB
+[sort field name] : 날짜
+[arrange row count] : before count 0 / after count 0
+[arrange end time] : 2022-01-13 09:46:42
+---------------------------------------------
+[arrange start time] : 2022-01-13 09:46:42
+[arrange data name] : 댓글_kinglion_board3_20220106.csv => comment_kinglion_board3_20220106.csv
+[arrange before data size] : 0.48 MB
+[sort field name] : 날짜
+[arrange row count] : before count 2874 / after count 2874
+[arrange end time] : 2022-01-13 09:46:42
+---------------------------------------------
+
+[log end time] : 2022-01-13 09:46:42
+#############################################
+#############################################
+[log start time] : 2022-01-13 14:06:46
+[target domain] : kinglionjay.godomall.com
+
+---------------------------------------------
+[arrange start time] : 2022-01-13 14:06:46
+[arrange data name] : member_20220110.csv => member_20220110.csv
+[arrange before data size] : 1.86 MB
+[sort field name] : 가입일
+[arrange row count] : before count 6342 / after count 6342
+[arrange end time] : 2022-01-13 14:06:47
+---------------------------------------------
+
+[log end time] : 2022-01-13 14:06:47
+#############################################

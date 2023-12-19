@@ -1,0 +1,6 @@
+<root>
+	<host>localhost</host>
+	<name>dbname</name>
+	<id>root</id>
+	<pwd>dbpw</pwd>
+</root>

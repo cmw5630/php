@@ -1,0 +1,1089 @@
+<!DOCTYPE>
+<html>
+	<head>
+	<title>:: 게시판 ::</title>
+		<link rel="stylesheet" href="./common/css/common.css"></link>
+		<style type="text/css">
+			#tableSetArea tbody tr td:last-child input[type="checkbox"], #tableSetArea tbody tr td:first-child input[type="checkbox"] {
+				margin-top:9px;
+			}
+			#replyRowSet .input-group {
+				margin-top:2px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<form name="frmMain" method="POST" action="" target="">
+		<input type="hidden" name="frmActionFileName" value="autoBoard.php" />
+		<input type="hidden" name="afterUrl" value="" />
+		<input type="hidden" name="mode" value="" />
+		<input type="hidden" name="insertMode" value="" />
+		<input type="hidden" name="queryRoopLimit" value="" />
+		<div class="input-group" style="width:25%;">
+			<div class="input-group-prepend">
+				<label class="input-group-text" for="dumpFileName">추출 파일명</label>
+			</div>
+			<input type="text" class="form-control" id="dumpFileName" name="dumpFileName" value="dataExportBoard" />
+			<div class="input-group-append">
+				<span class="input-group-text" style="background-color:#fff;">.sql</span>
+			</div>
+		</div>
+		<div class='card mb-2' style="margin-top:5px;">
+			<div class='card-header'>
+				기본 설정
+			</div>
+			<table class="table table-striped" id="tableSetArea" style="margin-bottom:0;">
+				<colgroup>
+					<col width="5%" />
+					<col width="25%" />
+					<col width="25%" />
+					<col width="25%" />
+					<col width="auto" />
+				</colgroup>
+				<thead>
+					<tr>
+						<td colspan="5">
+							<div class="input-group input-group-sm float-left" style="width:auto;">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="table_separate">테이블 분리 여부</label>
+								</div>
+								<select class="form-control displayFl" showFlag="Y" id="table_separate" dispTarget="separateAfterConfig" name="table_separate">
+									<option value="" selected>미분리</option>
+									<option value="Y">분리</option>
+								</select>
+							</div>
+							<div class="float-left">&nbsp;</div>
+							<div id="separateAfterConfig" style="display:none;">
+								<div class="input-group input-group-sm float-left" style="width:430px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="table_separate">분리 시 공통 테이블 명</label>
+									</div>
+									<input type="text" class="form-control" id="separate_after_name" name="separate_after_name" placeholder='ex) es_bd_(이전 전 코드)+(공통테이블명)' />
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="5">
+							<div class="input-group input-group-sm float-left" style="width:auto;">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="table_separate">게시판 갯수</label>
+								</div>
+								<input type="number" class="form-control" id="boardCodeCnt" name="boardCodeCnt" value="1" style="width:50px;" onlyNumber="1,50" />
+							</div>
+							<div class="float-left">&nbsp;</div>
+							<button type="button" class="btn btn-secondary btn-sm" name="boardSelectCodeDel">선택삭제</button>
+						</td>
+					</tr>
+					<tr>
+						<th><input type="checkbox" id="boardAllSelect" name="boardAllSelect" /> 선택</th>
+						<th>이전 전 코드</th>
+						<th>게시판 명 </th>
+						<th>이전 후 코드</th>
+						<th>1:1문의 형 여부</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td align="center">삭제불가</td>
+						<td align="center"><input type="text" class="form-control form-control-sm change" name="before_board[]" /></td>
+						<td align="center"><input type="text" class="form-control form-control-sm change" name="boardname[]" /></td>
+						<td align="center"><input type="text" class="form-control form-control-sm change" name="after_board[]" /></td>
+						<td align="center">
+							<select class="form-control form-control-sm" name="boardKindQa[]"  style="width:100px;">
+								<option value="" selected>미사용</option>
+								<option value="Y">사용</option>
+							</select>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class='card mb-2' style="margin-top:5px;">
+			<div>
+				<ul class="nav nav-tabs" id="tableTab" style="padding:5px 0 0 5px;">
+					<li class="nav-item">
+						<a class="nav-link active" href="#" tabtarget='boardTableArea'>게시판 설정</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#" tabtarget='commentTableArea'>댓글 설정</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#" tabtarget='fileArea'>파일 및 복사 설정</a>
+					</li>
+				</ul>
+			</div>
+			<div id="boardTableArea" class="tableArea" style="width:100%;">
+				<div style="padding:5px;">
+					<div class="dataInfoArea" style="margin-top:5px;">
+						<div class="input-group float-left" style="width:auto;">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="data_type">데이터 타입</label>
+							</div>
+							<select class="form-control data_type" id="data_type" name="data_type">
+								<option value="sql" selected>DATABASE</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<div class="float-left">&nbsp;</div>
+						<div class="input-group" style="width:50%;">
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="select_field">Select</label>
+							</div>
+							<input type="text" class="form-control sql" id="select_field" name="select_field" value="*"/>
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="data_name">From</label>
+							</div>
+							<input type="text" class="form-control" id="data_name" name="data_name" placeholder="DATA NAME" />
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="sort">Order By</label>
+							</div>
+							<input type="text" class="form-control sql" id="sort" name="sort" />
+							<div class="input-group-append csv" style="display:none;">
+								<label class="input-group-text" for="data_name">.csv</label>
+							</div>
+						</div>
+					</div>
+					<div class="input-group" style="width:30%;margin-top:5px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="delete_type">삭제 여부</label>
+							<label class="input-group-text" for="delete_type">조건</label>
+						</div>
+						<input type="text" class="form-control" id="delete_type" name="delete_type" />
+						<div class="input-group-append">
+							<label class="input-group-text" for="delete_field">필드명</label>
+						</div>
+						<input type="text" class="form-control" id="delete_field" name="delete_field" />
+					</div>
+				</div>
+				<div id="boardTable">
+					<table class="table table-striped">
+						<colgroup>
+							<col width="15%" />
+							<col width="auto" />
+							<col width="35%" />
+						</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">필드명</th>
+							<th scope="col">타입</th>
+							<th scope="col">기존 필드명</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td><label for="boardcd_field">게시판 구분 필드</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="boardcd_field" name="boardcd_field" /></td>
+						</tr>
+						<tr>
+							<td><label for="no_change">일련번호</label></td>
+							<td style="color:red;font-weight:bold;">* 게시글 일련번호는 댓글 및 파일 테이블 사용시 필수 입력 입니다.</td>
+							<td><input type="text" class="form-control form-control-sm change" id="no_change" name="no_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="group_change">그룹번호</label></td>
+							<td style="color:red;font-weight:bold;">* 게시글 그룹번호는 답글 사용시 필수 입력 입니다.</td>
+							<td><input type="text" class="form-control form-control-sm change" id="group_change" name="group_change" /></td>
+						</tr>
+						<tr>
+							<td colspan="3">
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="answer_separate">답글 Row 분리 여부</label>
+									</div>
+									<select class="form-control displayFl" showFlag="Y" id="answer_separate" dispTarget="replyRowSet" name="answer_separate">
+										<option value="ALL" selected>분리</option>
+										<option value="Y">미분리</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="float-left" id="replyRowSet" style="display:none;">
+									<div class="input-group input-group-sm float-left" style="width:350px;">
+										<div class="input-group-prepend">
+											<label class="input-group-text" style="width:200px;" for="separate_AnswerSubject">답글 제목</label>
+										</div>
+										<input type="text" class="form-control" placeholder="필드명" id="separate_AnswerSubject" name="separate_AnswerSubject" />
+									</div>
+									<div class="float-left">&nbsp;</div>
+									<div class="input-group input-group-sm" style="width:auto;">
+										<div class="input-group-prepend">
+											<label class="input-group-text" for="replycontentSubject">원글 제목 사용 여부([답변] 원글제목)</label>
+										</div>
+										<select class="form-control" id="replycontentSubject" name="replycontentSubject">
+											<option value="n" selected>미사용</option>
+											<option value="y">사용</option>
+										</select>
+									</div>
+									<div class="input-group input-group-sm" style="width:350px;">
+										<div class="input-group-prepend">
+											<label class="input-group-text" style="width:200px;" for="separate_AnswerContents">답글 내용</label>
+										</div>
+										<input type="text" class="form-control" placeholder="필드명" id="separate_AnswerContents" name="separate_AnswerContents" />
+									</div>
+									<div class="input-group input-group-sm" style="width:350px;">
+										<div class="input-group-prepend">
+											<label class="input-group-text" style="width:200px;" for="separate_AnswerManagerNo">답글 관리자(기본 : -1)</label>
+										</div>
+										<input type="text" class="form-control" placeholder="필드명" id="separate_AnswerManagerNo" name="separate_AnswerManagerNo" />
+									</div>
+									<div class="input-group input-group-sm" style="width:350px;">
+										<div class="input-group-prepend">
+											<label class="input-group-text" style="width:200px;" for="separate_AnswerModDt">답글 등록 일자</label>
+										</div>
+										<input type="text" class="form-control" placeholder="필드명" id="separate_AnswerModDt" name="separate_AnswerModDt" />
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>답글 구분</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:300px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="sub_type">조건</label>
+									</div>
+									<input type="text" class="form-control" id="sub_type" name="sub_type" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">(이)가 아닌 경우 답글 처리</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="sub_change" name="sub_change" /></td>
+						</tr>
+						<tr id="replyDepthConfigArea">
+							<td>답글 뎁스</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="groupDepthAutoCheck">글자수 뎁스처리(AAA:3뎁스)</label>
+									</div>
+									<select class="form-control" id="groupDepthAutoCheck" name="groupDepthAutoCheck">
+										<option value="" selected>미사용</option>
+										<option value="N">사용</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="groupDepthCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="groupDepth" id="groupDepthCnt" name="groupDepthCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="groupDepth_change" name="groupDepth_change" /></td>
+						</tr>
+						<tr>
+							<td>작성자명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:350px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="name_type">값</label>
+									</div>
+									<input type="text" class="form-control" id="name_type" name="name_type" placeholder="(*기존 필드 값 무시)" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">(으)로 일괄 강제 적용</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="writerNm_change" name="writerNm_change" /></td>
+						</tr>
+						<tr>
+							<td>닉네임</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:350px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="nick_type">값</label>
+									</div>
+									<input type="text" class="form-control" id="nick_type" name="nick_type" placeholder="(*기존 필드 값 무시)" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">(으)로 일괄 강제 적용</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="writerNick_change" name="writerNick_change" /></td>
+						</tr>
+						<tr>
+							<td>아이디</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:350px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="memNo_type">값</label>
+									</div>
+									<input type="text" class="form-control" id="memNo_type" name="memNo_type" placeholder="(*기존 필드 값 무시)" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">(으)로 일괄 강제 적용</label>
+									</div>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:400px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="admin_no">아이디</label>
+									</div>
+									<input type="text" class="form-control" id="admin_no" name="admin_no" placeholder="기존 관리자 ID" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;"> = 기본관리자(-1)로 강제 적용</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="memNo_change" name="memNo_change" /></td>
+						</tr>
+						<tr>
+							<td>비밀번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="writerPw_type">타입</label>
+									</div>
+									<select class="form-control" id="writerPw_type" name="writerPw_type">
+										<option value="" selected>-- 미사용 --</option>
+										<option value="md5">md5 암호화</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="writerPw_change" name="writerPw_change" /></td>
+						</tr>
+						<tr>
+							<td>이메일 주소</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="writerEmailCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" style="width:80px;" class="form-control fieldCnt" id="writerEmailCnt" name="writerEmailCnt" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;"> 2개 필 사용시 "@" 붙여 문자열 병합</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="writerEmail" name="writerEmail[]" /></td>
+						</tr>
+						<tr>
+							<td>핸드폰</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="writerMobile_changeCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="writerMobile_changeCnt" name="writerMobile_changeCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="writerMobile_change" name="writerMobile_change[]" /></td>
+						</tr>
+						<tr>
+							<td><label for="writerHp_change">홈페이지</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="writerHp_change" name="writerHp_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="subject_change">제목</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="subject_change" name="subject_change" /></td>
+						</tr>
+						<tr>
+							<td>상세설명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="contentsCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="contentsCnt" name="contentsCnt" />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="repcontentsCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="contents" id="repcontentsCnt" name="repcontentsCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="contents" name="contents[]" /></td>
+						</tr>
+						<tr>
+							<td>업로드 전 파일명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="oldFileCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="oldFileCnt" name="oldFileCnt" />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="repOldFileCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="oldFile" id="repOldFileCnt" name="repOldFileCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="oldFile" name="oldFile[]" /></td>
+						</tr>
+						<tr>
+							<td>업로드 후 변경 파일명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="newFileCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="newFileCnt" name="newFileCnt" />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="repNewFileCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="newFile" id="repNewFileCnt" name="repNewFileCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="newFile" name="newFile[]" /></td>
+						</tr>
+						<tr>
+							<td><label for="urlLink_change">링크</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="urlLink_change" name="urlLink_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="isNotice_change">공지여부</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="isNotice_change" name="isNotice_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="isSecret_change">비밀글여부</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="isSecret_change" name="isSecret_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="hit_change">조회수</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="hit_change" name="hit_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="goodsNo_change">상품번호</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="goodsNo_change" name="goodsNo_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="mileage_change">적립금</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="mileage_change" name="mileage_change" /></td>
+						</tr>
+						<tr>
+							<td>작성 IP</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="ipCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,4" value="1" class="form-control fieldCnt" id="ipCnt" name="ipCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="ip" name="ip[]" /></td>
+						</tr>
+						<tr>
+							<td>평가(별점)</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="repgoodsPtCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="goodsPt" id="repgoodsPtCnt" name="repgoodsPtCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="goodsPt_change" name="goodsPt_change" /></td>
+						</tr>
+						<tr>
+							<td>카테고리</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="repcategoryCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="category" id="repcategoryCnt" name="repcategoryCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="category_change" name="category_change" /></td>
+						</tr>
+						<tr>
+							<td>수정일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="modDtCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="modDtCnt" name="modDtCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="modDt" name="modDt[]" /></td>
+						</tr>
+						<tr>
+							<td>* 등록일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="regDtCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="regDtCnt" name="regDtCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="regDt" name="regDt[]" /></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div id="commentTableArea" class="tableArea" style="display:none;width:100%;">
+				<div style="padding:5px;">
+					<div class="input-group" style="width:350px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="reply_use">댓글 테이블 구분</label>
+						</div>
+						<select class="form-control displayFl" showFlag="Y" id="reply_use" dispTarget="commentTableConfigArea" name="reply_use">
+							<option value="Y" selected>타 테이블</option>
+							<option value="S">자체 테이블</option>
+						</select>
+					</div>
+				</div>
+				<div id="commentTableConfigArea" style="padding:0 0 5px 5px;">
+					<div class="dataInfoArea">
+						<div style="width:100%;margin-bottom:5px;height:38px;">
+							<div class="input-group float-left" style="width:350px;">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="reply_table_separate">댓글 테이블 분리 여부</label>
+								</div>
+								<select class="form-control displayFl" showFlag="Y" id="reply_table_separate" dispTarget="reply_separate_after_name_area" name="reply_table_separate">
+									<option value="" selected>미분리</option>
+									<option value="Y">분리</option>
+								</select>
+							</div>
+							<div class="float-left">&nbsp;</div>
+							<div class="input-group" id="reply_separate_after_name_area" style="width:500px;display:none;">
+								<div class="input-group-prepend">
+									<label class="input-group-text" for="reply_separate_after_name">분리 시 공통 테이블 명</label>
+								</div>
+								<input type="text" class="form-control" id="reply_separate_after_name" name="reply_separate_after_name" placeholder='ex) es_bd_(이전 전 코드)+(공통테이블명)' />
+							</div>
+						</div>
+						<div class="input-group float-left" style="width:auto;">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="comment_data_type">데이터 타입</label>
+							</div>
+							<select class="form-control data_type" id="comment_data_type" name="comment_data_type">
+								<option value="sql" selected>DATABASE</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<div class="float-left">&nbsp;</div>
+						<div class="input-group" style="width:50%;">
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="comment_select_field">Select</label>
+							</div>
+							<input type="text" class="form-control sql" id="comment_select_field" name="comment_select_field" value="*"/>
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="comment_data_name">From</label>
+							</div>
+							<input type="text" class="form-control" id="comment_data_name" name="comment_data_name" placeholder="DATA NAME" />
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="comment_sort">Order By</label>
+							</div>
+							<input type="text" class="form-control sql" id="comment_sort" name="comment_sort" />
+							<div class="input-group-append csv" style="display:none;">
+								<label class="input-group-text" for="comment_data_name">.csv</label>
+							</div>
+						</div>
+					</div>
+					<div class="input-group" style="width:30%;margin-top:5px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="comment_delete_type">삭제 여부</label>
+							<label class="input-group-text" for="comment_delete_type">조건</label>
+						</div>
+						<input type="text" class="form-control" id="comment_delete_type" name="comment_delete_type" />
+						<div class="input-group-append">
+							<label class="input-group-text" for="comment_delete_field">필드명</label>
+						</div>
+						<input type="text" class="form-control" id="comment_delete_field" name="comment_delete_field" />
+					</div>
+				</div>
+				<div id="commentTable">
+					<table class="table table-striped">
+						<colgroup>
+							<col width="15%" />
+							<col width="auto" />
+							<col width="35%" />
+						</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">필드명</th>
+							<th scope="col">타입</th>
+							<th scope="col">기존 필드명</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td><label for="reply_index_no">부모글 일련번호</label></td>
+							<td style="color:red;font-weight:bold;">* 게시글 일련번호는 댓글 및 파일 테이블 사용시 필수 입력 입니다.</td>
+							<td><input type="text" class="form-control form-control-sm change" id="reply_index_no" name="reply_index_no" /></td>
+						</tr>
+						<tr>
+							<td><label for="reply_boardcd">부모글 게시판 코드</label></td>
+							<td style="color:red;font-weight:bold;"></td>
+							<td><input type="text" class="form-control form-control-sm change" id="reply_boardcd" name="reply_boardcd" /></td>
+						</tr>
+						<tr>
+							<td>작성자명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:350px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="reply_writeNm_type">값</label>
+									</div>
+									<input type="text" class="form-control" id="reply_writeNm_type" name="reply_writeNm_type" placeholder="(*기존 필드 값 무시)" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">(으)로 일괄 강제 적용</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="reply_writerNm_change" name="reply_writerNm_change" /></td>
+						</tr>
+						<tr>
+							<td>아이디</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:350px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="reply_memNo_type">값</label>
+									</div>
+									<input type="text" class="form-control" id="reply_memNo_type" name="reply_memNo_type" placeholder="(*기존 필드 값 무시)" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">(으)로 일괄 강제 적용</label>
+									</div>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:400px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="reply_admin_no">아이디</label>
+									</div>
+									<input type="text" class="form-control" id="reply_admin_no" name="reply_admin_no" placeholder="기존 관리자 ID" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;"> = 기본관리자(-1)로 강제 적용</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="reply_memNo_change" name="reply_memNo_change" /></td>
+						</tr>
+						<tr>
+							<td><label for="reply_memo_change">내용</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="reply_memo_change" name="reply_memo_change" /></td>
+						</tr>
+						<tr>
+							<td>비밀번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="reply_writerPw_type">타입</label>
+									</div>
+									<select class="form-control" id="reply_writerPw_type" name="reply_writerPw_type">
+										<option value="" selected>-- 미사용 --</option>
+										<option value="md5">md5 암호화</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="reply_writerPw_change" name="reply_writerPw_change" /></td>
+						</tr>
+						<tr>
+							<td>* 등록일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="replyRegdtCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="replyRegdtCnt" name="replyRegdtCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="replyRegdt" name="replyRegdt[]" /></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div id="fileArea" class="tableArea" style="display:none;width:100%;">
+				<div style="padding:5px;">
+					<div class="input-group float-left" style="width:auto;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="file_copy_yn">첨부 이미지 복사</label>
+						</div>
+						<select class="form-control copyFl" id="file_copy_yn" dispTarget="attachConf" name="file_copy_yn">
+							<option value="" selected>미사용</option>
+							<option value="Y">사용</option>
+						</select>
+					</div>
+					<div class="float-left">&nbsp;</div>
+					<div class="input-group float-left" style="width:auto;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="editor_file_copy_yn">상세 설명 이미지 복사</label>
+						</div>
+						<select class="form-control copyFl" id="editor_file_copy_yn" dispTarget="descConf" name="editor_file_copy_yn">
+							<option value="" selected>미사용</option>
+							<option value="Y">사용</option>
+						</select>
+					</div>
+					<div class="float-left">&nbsp;</div>
+					<div class="input-group" style="width:280px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="file_use">파일 테이블 사용 여부</label>
+						</div>
+						<select class="form-control displayFl" showFlag="Y" id="file_use" dispTarget="fileDataInfo fileTableSet" name="file_use">
+							<option value="" selected>미사용</option>
+							<option value="Y">사용</option>
+						</select>
+					</div>
+					<div id="fileDataInfo" class="dataInfoArea" style="margin-top:5px;display:none;">
+						<div class="input-group float-left" style="width:auto;">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="file_data_type">데이터 타입</label>
+							</div>
+							<select class="form-control data_type" id="file_data_type" name="file_data_type">
+								<option value="sql" selected>DATABASE</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<div class="float-left">&nbsp;</div>
+						<div class="input-group" style="width:50%;">
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="file_select_field">Select</label>
+							</div>
+							<input type="text" class="form-control sql" id="file_select_field" name="file_select_field" value="*"/>
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="file_data_name">From</label>
+							</div>
+							<input type="text" class="form-control" id="file_data_name" name="file_data_name" placeholder="DATA NAME" />
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="file_sort">Order By</label>
+							</div>
+							<input type="text" class="form-control sql" id="file_sort" name="file_sort" />
+							<div class="input-group-append csv" style="display:none;">
+								<label class="input-group-text" for="file_data_name">.csv</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="fileCopyTable">
+					<table class="table table-striped" id="fileTableSet" style="display:none;margin-bottom: 0px;">
+						<colgroup>
+							<col width="15%" />
+							<col width="auto" />
+							<col width="35%" />
+						</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">필드명</th>
+							<th scope="col">타입</th>
+							<th scope="col">기존 필드명</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td><label for="file_board_no">부모글 일련번호</label></td>
+							<td style="color:red;font-weight:bold;">* 게시글 설정의 일련번호 값 필수</td>
+							<td><input type="text" class="form-control form-control-sm change" id="file_board_no" name="file_board_no" /></td>
+						</tr>
+						<tr>
+							<td><label for="file_board_cd">부모글 게시판 코드</label></td>
+							<td style="color:red;font-weight:bold;"></td>
+							<td><input type="text" class="form-control form-control-sm change" id="file_board_cd" name="file_board_cd" /></td>
+						</tr>
+						<tr>
+							<td>업로드 전 파일명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="fileTableOldCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="fileTableOldCnt" name="fileTableOldCnt" />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="rep_table_ofileCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="table_ofile" id="rep_table_ofileCnt" name="rep_table_ofileCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="fileTableOld" name="fileTableOld[]" /></td>
+						</tr>
+						<tr>
+							<td>업로드 후 변경 파일명</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="fileTableNewCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="fileTableNewCnt" name="fileTableNewCnt" />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="rep_table_nfileCnt">변경 갯수</label>
+									</div>
+									<input type="number" onlyNumber="20" value="0" class="form-control replaceCount" repName="table_nfile" id="rep_table_nfileCnt" name="rep_table_nfileCnt" />
+								</div>
+								<div class="float-right replaceArea" >
+									
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm float-left change" id="fileTableNew" name="fileTableNew[]" /></td>
+						</tr>
+						</tbody>
+					</table>
+					<table class="table table-striped" id="copyConf" style="display:none;margin-bottom: 0px;">
+						<colgroup>
+							<col width="15%" />
+							<col width="auto" />
+							</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">설명</th>
+							<th scope="col">설정</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>복사 기능 상세 설정</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="file_rename_yn">경로 파일명만 변경 처리</label>
+									</div>
+									<select class="form-control" id="file_rename_yn" name="file_rename_yn">
+										<option value="" selected>미사용</option>
+										<option value="Y">사용</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="addressTableFl">Local 경로 복사</label>
+									</div>
+									<select class="form-control" id="addressTableFl" name="addressTableFl">
+										<option value="" selected>미사용</option>
+										<option value="Y">사용</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm" style="width:225px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="bulkFileFl">대량 파일 복사 여부</label>
+									</div>
+									<select class="form-control" id="bulkFileFl" name="bulkFileFl">
+										<option value="" selected>미사용</option>
+										<option value="Y">사용</option>
+									</select>
+								</div>
+								<div class="input-group input-group-sm float-left" style="width:455px;margin-top:3px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="imgHostingDomain">이미지 호스팅 전환 주소</label>
+									</div>
+									<input type="text" class="form-control" placeholder="***.godohosting.com" id="imgHostingDomain" name="imgHostingDomain" />
+								</div>
+							</td>
+						</tr>
+						<tr id="attachConf" style="display:none;">
+							<td>첨부파일 복사 설정</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:190px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="fileCopyCheck">복사 상태 표시</label>
+									</div>
+									<select class="form-control" id="fileCopyCheck" name="fileCopyCheck">
+										<option value="" selected>미사용</option>
+										<option value="Y">사용</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm" style="width:260px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="filePathOldBoardCodeYn">이전 보드코드 경로 사용</label>
+									</div>
+									<select class="form-control" id="filePathOldBoardCodeYn" name="filePathOldBoardCodeYn">
+										<option value="" selected>미사용</option>
+										<option value="Y">사용</option>
+									</select>
+								</div>
+								<div class="input-group input-group-sm" style="width:810px;margin-top:3px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="file_before">기존 첨부 이미지 공통 경로</label>
+									</div>
+									<input type="text" class="form-control" placeholder="http://exam.co.kr/board/" style="width:230px;" id="file_before" name="file_before" />
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="file_before">변경 경로 => </label>
+									</div>
+									<div class="input-group-append">
+										<label class="input-group-text" for="file_before">/data/board/upload/</label>
+									</div>
+								</div>
+								<div style="margin-top:3px;">
+									<div class="input-group input-group-sm float-left" style="width:190px;">
+										<div class="input-group-prepend">
+											<label class="input-group-text" for="fieldDataFl">필드 경로 사용</label>
+										</div>
+										<select class="form-control" id="fieldDataFl" name="filePathFieldYn">
+											<option value="" selected>미사용</option>
+											<option value="Y">사용</option>
+										</select>
+									</div>
+									<div class="float-left">&nbsp;</div>
+									<div id="fileAddPath">
+										<div class="input-group input-group-sm float-left" style="width:auto;">
+											<div class="input-group-prepend">
+												<label class="input-group-text" for="filePath">추가 경로</label>
+											</div>
+											<input type="text" class="form-control" id="filePath" placeholder="추가 경로 입력" style="width:130px;" name="filePath" />
+										</div>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr id="descConf" style="display:none;">
+							<td>상세설명 이미지 복사 설정</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="editorFileCopyCheck">복사 상태 표시</label>
+									</div>
+									<select class="form-control" id="editorFileCopyCheck" name="editorFileCopyCheck">
+										<option value="" selected>미사용</option>
+										<option value="Y">사용</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="editorFileDomainCnt">도메인 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control" id="editorFileDomainCnt" name="editorFileDomainCnt" />
+								</div>
+								<div id="editorPathArea" style="margin-top:3px;">
+									<div class="input-group input-group-sm" style="width:600px;" style="margin-top:3px;">
+										<div class="input-group-prepend">
+											<span class="input-group-text">도메인</span>
+										</div>
+										<input type="text" style="width:200px;" class="form-control" placeholder="exam.co.kr" name="editorFileDomain[]" />
+										<div class="input-group-prepend">
+											<span class="input-group-text">기본 경로</span>
+										</div>
+										<input type="text" style="width:200px;" class="form-control" value="/" name="editorFileDefaultPath[]" />
+									</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		</form>
+		<script type="text/javascript" src="./common/js/jquery-3.2.1.js"></script>
+		<script type="text/javascript" src="./common/js/common.js"></script>
+		<script type="text/javascript">
+			function groupDepthAutoCheck() {
+				var obj = $('#groupDepthAutoCheck');
+
+				if (obj.find('option:selected').val() == 'N') {
+					$('input[name="groupDepthCnt"]').val(0);
+					replaceCntChangeSet($('input[name="groupDepthCnt"]'));
+					obj.parent().parent('td').find('input').attr('disabled', true);
+				}
+				else {
+					obj.parent().parent('td').find('input').attr('disabled', false);
+				}
+			}
+
+			function replyDepthAreaDisavledFl () {
+				if ($('select[name="answer_separate"]').find('option:selected').val() == 'Y') {
+					$('input[name="groupDepthCnt"]').val(0);
+					replaceCntChangeSet($('input[name="groupDepthCnt"]'));
+					$('#replyDepthConfigArea').find('input').attr('disabled', true);
+					$('#replyDepthConfigArea').find('select').attr('disabled', true);
+				}
+				else {
+					$('#replyDepthConfigArea').find('input').attr('disabled', false);
+					$('#replyDepthConfigArea').find('select').attr('disabled', false);
+				}
+			}
+			
+			$(document).ready(function(){
+				$('.copyFl').on('change', function(){
+					fileCopyConfSet($(this));
+				});
+
+				$('#fieldDataFl').on('change', function(){
+					pathFieldFl();
+				})
+
+				$('input[name="boardCodeCnt"]').on({
+						'keyup' : function() {
+						boardCodeSet($(this).val());
+					}
+				}).change(function() {
+					//boardCodeSet($(this).val());
+				});
+				
+				$('#boardAllSelect').on('click', function(){
+					if ($(this).is(':checked')) {
+						$('input[name="board_code_check[]"]').prop('checked','checked');
+					}
+					else {
+						$('input[name="board_code_check[]"]').prop('checked',false);
+					}
+				});
+
+				$('button[name="boardSelectCodeDel"]').on('click', function() {
+					if (confirm("선택 게시판을 삭제 하시겠습니까?")) {
+						$('input[name="board_code_check[]"]').each(function(){
+							if ($(this).is(':checked')) {
+								$(this).parent().parent().remove();
+							}
+						});
+						$('input[name="boardCodeCnt"]').val($('input[name="board_code_check[]"]').length + 1);
+
+						$('input[name="boardAllSelect"]').prop('checked', false);
+					}
+				});
+				
+				$('#groupDepthAutoCheck').on('change', function(){
+					groupDepthAutoCheck();
+				});
+				
+				$('#answer_separate').on('change', function(){
+					replyDepthAreaDisavledFl();
+				});
+			});
+
+			
+		</script>
+	</body>
+</html>

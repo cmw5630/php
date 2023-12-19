@@ -1,0 +1,683 @@
+<!DOCTYPE>
+<html>
+	<head>
+	<title>:: 공급사 ::</title>
+		<link rel="stylesheet" href="./common/css/common.css"></link>
+	</head>
+
+	<body>
+		<form name="frmMain" method="POST" action="" target="">
+		<input type="hidden" name="frmActionFileName" value="autoScm.php" />
+		<input type="hidden" name="afterUrl" value="" />
+		<input type="hidden" name="mode" value="" />
+		<input type="hidden" name="insertMode" value="" />
+		<input type="hidden" name="queryRoopLimit" value="" />
+		<div class="input-group" style="width:25%;">
+			<div class="input-group-prepend">
+				<label class="input-group-text" for="dumpFileName">추출 파일명</label>
+			</div>
+			<input type="text" class="form-control" id="dumpFileName" name="dumpFileName" value="dataExportScm" />
+			<div class="input-group-append">
+				<span class="input-group-text" style="background-color:#fff;">.sql</span>
+			</div>
+		</div>
+		<div class='card mb-2' style="margin-top:5px;">
+			<div>
+				<ul class="nav nav-tabs" id="tableTab" style="padding:5px 0 0 5px;">
+					<li class="nav-item">
+						<a class="nav-link active" href="#" tabtarget='mainTableArea'>공급사</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#" tabtarget='subTableArea'>공급사 관리자</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#" tabtarget='thirdTableArea'>직원정보</a>
+					</li>
+				</ul>
+			</div>
+			<div id="mainTableArea" class="tableArea" style="width:100%;">
+				<div style="padding:5px;">
+					<div class="dataInfoArea" style="margin-top:5px;">
+						<div class="input-group float-left" style="width:auto;">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="data_type">데이터 타입</label>
+							</div>
+							<select class="form-control data_type" id="data_type" name="data_type">
+								<option value="sql" selected>DATABASE</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<div class="float-left">&nbsp;</div>
+						<div class="input-group" style="width:50%;">
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="select_field">Select</label>
+							</div>
+							<input type="text" class="form-control sql" id="select_field" name="select_field" value="*"/>
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="data_name">From</label>
+							</div>
+							<input type="text" class="form-control" id="data_name" name="data_name" placeholder="DATA NAME" />
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="sort">Order By</label>
+							</div>
+							<input type="text" class="form-control sql" id="sort" name="sort" />
+							<div class="input-group-append csv" style="display:none;">
+								<label class="input-group-text" for="data_name">.csv</label>
+							</div>
+						</div>
+					</div>
+					<div class="input-group" style="width:30%;margin-top:5px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="delete_type">삭제 여부</label>
+							<label class="input-group-text" for="delete_type">조건</label>
+						</div>
+						<input type="text" class="form-control" id="delete_type" name="delete_type" />
+						<div class="input-group-append">
+							<label class="input-group-text" for="delete_field">필드명</label>
+						</div>
+						<input type="text" class="form-control" id="delete_field" name="delete_field" />
+					</div>
+				</div>
+				<div id="scmTable">
+					<table class="table table-striped">
+						<colgroup>
+							<col width="20%" />
+							<col width="auto" />
+							<col width="35%" />
+						</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">필드명</th>
+							<th scope="col">타입</th>
+							<th scope="col">기존 필드명</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td><label for="scmNo">일련번호</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="scmNo" name="scmNo" /></td>
+						</tr>
+						<tr>
+							<td><label for="scmCode">코드</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="scmCode" name="scmCode" /></td>
+						</tr>
+						<tr>
+							<td><label for="companyNm">공급사명</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="companyNm" name="companyNm" /></td>
+						</tr>
+						<tr>
+							<td>탈퇴여부</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:300px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="scmType_type">조건</label>
+									</div>
+									<input type="text" class="form-control" id="scmType_type" name="scmType_type" />
+									<div class="input-group-append">
+										<label class="input-group-text" style="background-color:#fff;">일 경우 탈퇴 공급사 처리</label>
+									</div>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="scmType" name="scmType" /></td>
+						</tr>
+						<tr>
+							<td>판매수수료</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="sellCommissionCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="sellCommissionCnt" name="sellCommissionCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="sellCommission" name="sellCommission[]" /></td>
+						</tr>
+						<tr>
+							<td>배송비수수료</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="deliveryCommissionCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="deliveryCommissionCnt" name="deliveryCommissionCnt" />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="deliveryCommission_type">타입</label>
+									</div>
+									<select class="form-control" id="deliveryCommission_type" name="deliveryCommission_type">
+										<option value="" selected>-- 미사용 --</option>
+										<option value="sync">판매수수료동일(강제)</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="deliveryCommission" name="deliveryCommission[]" /></td>
+						</tr>
+						<tr>
+							<td>대표자명</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="ceoNm" name="ceoNm" /></td>
+						</tr>
+						<tr>
+							<td>사업자등록번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="businessNoCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,10" value="1" class="form-control fieldCnt" id="businessNoCnt" name="businessNoCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="businessNo" name="businessNo[]" /></td>
+						</tr>
+						<tr>
+							<td>업태</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="service" name="service" /></td>
+						</tr>
+						<tr>
+							<td>종목</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="item" name="item" /></td>
+						</tr>
+						<tr>
+							<td>우편번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="zipcodeCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="zipcodeCnt" name="zipcodeCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="zipcode" name="zipcode[]" /></td>
+						</tr>
+						<tr>
+							<td>신규우편번호</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="zonecode" name="zonecode" /></td>
+						</tr>
+						<tr>
+							<td>주소</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="addressCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,4" value="1" class="form-control fieldCnt" id="addressCnt" name="addressCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="address" name="address[]" /></td>
+						</tr>
+						<tr>
+							<td>출고지 우편번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="unstoringZipcodeCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="unstoringZipcodeCnt" name="unstoringZipcodeCnt" disabled/>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="unstoringAddress_type">타입</label>
+									</div>
+									<select class="form-control scmAddressType" id="unstoringAddress_type" name="unstoringAddress_type">
+										<option value="sync" selected>기본 주소지 동일(강제)</option>
+										<option value="">데이터 사용</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="unstoringZipcode" name="unstoringZipcode[]" disabled /></td>
+						</tr>
+						<tr>
+							<td>출고지 신규우편번호</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="unstoringZonecode" name="unstoringZonecode" disabled /></td>
+						</tr>
+						<tr>
+							<td>출고지 주소</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="unstoringAddressCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,4" value="1" class="form-control fieldCnt" id="unstoringAddressCnt" name="unstoringAddressCnt" disabled />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="unstoringAddress" name="unstoringAddress[]" disabled /></td>
+						</tr>
+						<tr>
+							<td>반품/교환지 우편번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="returnZipcodeCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="returnZipcodeCnt" name="returnZipcodeCnt" disabled/>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="returnAddress_type">타입</label>
+									</div>
+									<select class="form-control scmAddressType" id="returnAddress_type" name="returnAddress_type">
+										<option value="sync" selected>기본 주소지 동일(강제)</option>
+										<option value="">데이터 사용</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="returnZipcode" name="returnZipcode[]" disabled /></td>
+						</tr>
+						<tr>
+							<td>반품/교환지 신규우편번호</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="returnZonecode" name="returnZonecode" disabled /></td>
+						</tr>
+						<tr>
+							<td>반품/교환지 주소</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="returnAddressCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,4" value="1" class="form-control fieldCnt" id="returnAddressCnt" name="returnAddressCnt" disabled />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="returnAddress" name="returnAddress[]" disabled /></td>
+						</tr>
+						<tr>
+							<td>대표번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="phoneCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="phoneCnt" name="phoneCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="phone" name="phone[]" /></td>
+						</tr>
+						<tr>
+							<td>고객센터</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="centerPhoneCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="centerPhoneCnt" name="centerPhoneCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="centerPhone" name="centerPhone[]" /></td>
+						</tr>
+						<tr>
+							<td>팩스</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="faxCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="faxCnt" name="faxCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="fax" name="fax[]" /></td>
+						</tr>
+						<tr>
+							<td>수정일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="modDtCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="modDtCnt" name="modDtCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="modDt" name="modDt[]" /></td>
+						</tr>
+						<tr>
+							<td>* 등록일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="regDtCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="regDtCnt" name="regDtCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="regDt" name="regDt[]" /></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div id="subTableArea" class="tableArea" style="display:none;">
+				<div style="padding:5px;">
+					<div class="input-group" style="width:330px;margin-bottom:5px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="subTableFl">추가 테이블 사용 여부</label>
+						</div>
+						<select class="form-control displayFl" showFlag="Y" id="subTableFl" dispTarget="relationField addTable" name="subTableFl">
+							<option value="" selected>미사용</option>
+							<option value="Y">사용</option>
+							<option value="temp">임의생성</option>
+						</select>
+					</div>
+					<div class="dataInfoArea" id = "addTable" style="margin-top:5px;display:none;">
+						<div class="input-group float-left" style="width:auto;">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="sub_data_type">데이터 타입</label>
+							</div>
+							<select class="form-control data_type" id="sub_data_type" name="sub_data_type">
+								<option value="sql" selected>DATABASE</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<div class="float-left">&nbsp;</div>
+						<div class="input-group" style="width:50%;">
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="sub_select_field">Select</label>
+							</div>
+							<input type="text" class="form-control sql" id="sub_select_field" name="sub_select_field" value="*"/>
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="sub_data_name">From</label>
+							</div>
+							<input type="text" class="form-control" id="sub_data_name" name="sub_data_name" placeholder="DATA NAME" />
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="sub_sort">Order By</label>
+							</div>
+							<input type="text" class="form-control sql" id="sub_sort" name="sub_sort" />
+							<div class="input-group-append csv" style="display:none;">
+								<label class="input-group-text" for="sub_data_name">.csv</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="addAddressTable">
+					<table  class="table table-striped">
+						<colgroup>
+							<col width="15%" />
+							<col width="auto" />
+							<col width="35%" />
+						</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">필드명</th>
+							<th scope="col">타입</th>
+							<th scope="col">기존 필드명</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr id="relationField" style="display:none;">
+							<td>공급사 테이블 매칭 필드</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="managerRelation_type">타입</label>
+									</div>
+									<select class="form-control" id="managerRelation_type" name="managerRelation_type">
+										<option value="scmNo">일련번호 매칭</option>
+										<option value="scmCode">코드 매칭</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="managerRelation" name="managerRelation" /></td>
+						</tr>
+						<tr>
+							<td><label for="managerId">아이디</label></td>
+							<td>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" id="tempIDArea" style="width:auto;display:none;">
+									<div class="input-group-prepend" style="">
+										<label class="input-group-text" for="tempId">아이디 양식</label>
+									</div>
+									<input type="text" class="form-control" id="tempId" name="tempId" value="provider"/>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="managerId" name="managerId" /></td>
+						</tr>
+						<tr>
+							<td>관리자명</td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="managerNm" name="managerNm" /></td>
+						</tr>
+						<tr>
+							<td><label for="managerNickNm">닉네임</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="managerNickNm" name="managerNickNm" /></td>
+						</tr>
+						<tr>
+							<td>비밀번호</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="memPwCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="memPwCnt" name="memPwCnt" disabled />
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="password_type">타입</label>
+									</div>
+									<select class="form-control displayFl" showFlag="temp" dispTarget="tempPasswordArea" id="password_type" name="password_type">
+										<option value="" selected>-- 미사용 --</option>
+										<option value="password">Password 암호화</option>
+										<option value="temp">임시비밀번호</option>
+									</select>
+								</div>
+								<div class="float-left">&nbsp;</div>
+								<div class="input-group input-group-sm float-left" id="tempPasswordArea" style="width:auto;display:none;">
+									<div class="input-group-prepend" style="">
+										<label class="input-group-text" for="tempPassword">임시 양식</label>
+									</div>
+									<input type="text" class="form-control" id="tempPassword" name="tempPassword" value="change"/>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="memPw" name="memPw[]" /></td>
+						</tr>
+						<tr>
+							<td>연락처</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="managerPhoneCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="managerPhoneCnt" name="managerPhoneCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="managerPhone" name="managerPhone[]" /></td>
+						</tr>
+						<tr>
+							<td>핸드폰</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="managerCellPhoneCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="managerCellPhoneCnt" name="managerCellPhoneCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="managerCellPhone" name="managerCellPhone[]" /></td>
+						</tr>
+						<tr>
+							<td>이메일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="managerEmailCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="managerEmailCnt" name="managerEmailCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="managerEmail" name="managerEmail[]" /></td>
+						</tr>
+						<tr>
+							<td>메모</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="memoCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,4" value="1" class="form-control fieldCnt" id="memoCnt" name="memoCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="memo" name="memo[]" /></td>
+						</tr>
+						<tr>
+							<td>* 등록일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="managerRegDtCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="managerRegDtCnt" name="managerRegDtCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="managerRegDt" name="managerRegDt[]" /></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div id="thirdTableArea" class="tableArea" style="display:none;">
+				<div style="padding:5px;">
+					<div class="input-group" style="width:330px;margin-bottom:5px;">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="thirdTableFl">추가 테이블 사용 여부</label>
+						</div>
+						<select class="form-control displayFl" showFlag="Y" id="thirdTableFl" dispTarget="staffRelationField staffTable" name="thirdTableFl">
+							<option value="" selected>미사용</option>
+							<option value="Y">사용</option>
+						</select>
+					</div>
+					<div class="dataInfoArea" id="staffTable" style="margin-top:5px;display:none;">
+						<div class="input-group float-left" style="width:auto;">
+							<div class="input-group-prepend">
+								<label class="input-group-text" for="third_data_type">데이터 타입</label>
+							</div>
+							<select class="form-control data_type" id="third_data_type" name="third_data_type">
+								<option value="sql" selected>DATABASE</option>
+								<option value="csv">CSV</option>
+							</select>
+						</div>
+						<div class="float-left">&nbsp;</div>
+						<div class="input-group" style="width:50%;">
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="third_select_field">Select</label>
+							</div>
+							<input type="text" class="form-control sql" id="third_select_field" name="third_select_field" value="*"/>
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="third_data_name">From</label>
+							</div>
+							<input type="text" class="form-control" id="third_data_name" name="third_data_name" placeholder="DATA NAME" />
+							<div class="input-group-prepend sql">
+								<label class="input-group-text" for="third_sort">Order By</label>
+							</div>
+							<input type="text" class="form-control sql" id="third_sort" name="third_sort" />
+							<div class="input-group-append csv" style="display:none;">
+								<label class="input-group-text" for="third_data_name">.csv</label>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="thirdTable">
+					<table  class="table table-striped">
+						<colgroup>
+							<col width="15%" />
+							<col width="auto" />
+							<col width="35%" />
+						</colgroup>
+						<thead class="thead-dark">
+						<tr>
+							<th scope="col">필드명</th>
+							<th scope="col">타입</th>
+							<th scope="col">기존 필드명</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr id="staffRelationField" style="display:none;">
+							<td>공급사 테이블 매칭 필드</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:auto;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="staffRelation_type">타입</label>
+									</div>
+									<select class="form-control" id="staffRelation_type" name="staffRelation_type">
+										<option value="scmNo">일련번호 매칭</option>
+										<option value="scmCode">코드 매칭</option>
+									</select>
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change" id="staffRelation" name="staffRelation" /></td>
+						</tr>
+						<tr>
+							<td><label for="staffName">이름</label></td>
+							<td></td>
+							<td><input type="text" class="form-control form-control-sm change" id="staffName" name="staffName" /></td>
+						</tr>
+						<tr>
+							<td>연락처</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="managerPhoneCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="staffPhoneCnt" name="staffPhoneCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="staffPhone" name="staffPhone[]" /></td>
+						</tr>
+						<tr>
+							<td>핸드폰</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="staffCellPhoneCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,3" value="1" class="form-control fieldCnt" id="staffCellPhoneCnt" name="staffCellPhoneCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="staffCellPhone" name="staffCellPhone[]" /></td>
+						</tr>
+						<tr>
+							<td>이메일</td>
+							<td>
+								<div class="input-group input-group-sm float-left" style="width:150px;">
+									<div class="input-group-prepend">
+										<label class="input-group-text" for="staffEmailCnt">필드 갯수</label>
+									</div>
+									<input type="number" onlyNumber="1,2" value="1" class="form-control fieldCnt" id="staffEmailCnt" name="staffEmailCnt" />
+								</div>
+							</td>
+							<td><input type="text" class="form-control form-control-sm change float-left" id="staffEmail" name="staffEmail[]" /></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		</form>
+		<script type="text/javascript" src="./common/js/jquery-3.2.1.js"></script>
+		<script type="text/javascript" src="./common/js/common.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('select.scmAddressType').on('change', function() {
+					scmAddressSet($(this));
+				});
+
+				$('select[name="deliveryCommission_type"]').on('change', function() {
+					deliveryCommissionTypeSet();
+				});
+				
+				$('select[name="password_type"]').on('change', function(){
+					passwordTypeSet();
+				});
+			});
+		</script>
+	</body>
+</html>

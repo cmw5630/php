@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ namespace }};
+
+use BenSampo\Enum\Enum;
+
+final class {{ class }} extends Enum
+{
+  const SAMPLE = 0;
+}

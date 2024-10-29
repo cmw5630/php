@@ -1,0 +1,81 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+    laravel.test:
+        container_name: soccer_server_api
+        restart: always
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.1
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.1/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '2525:80'
+            - '2601:6001'
+            # - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            # XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            # XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - my_bridge_net
+        depends_on:
+            - mysql
+            - redis
+    mysql:
+        # # mysql 설정
+        # ### 루트로 접속 후 
+        # - `GRANT ALL PRIVILEGES ON database_name.* TO 'b2ggames'@'%';`
+        # - GRANT ALL ON *.* TO 'b2ggames'@'%';
+        # - `FLUSH PRIVILEGES;`
+        container_name: 'soccer_mysql'
+        restart: always
+        image: 'mysql/mysql-server:8.0'
+        ports:
+            - '${FORWARD_DB_PORT:-3306}:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
+            # MYSQL_ROOT_HOST: '${DB_HOST}'
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - '~/SOCCER_MYSQL:/var/lib/mysql'
+            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+        networks:
+            - my_bridge_net
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+            retries: 3
+            timeout: 5s
+        # command:
+        #     - --default-authentication-plugin=mysql_native_password
+    redis:
+        container_name: soccer_redis
+        restart: always
+        image: 'redis'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'soccer-redis:/data'
+        networks:
+            - my_bridge_net
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            retries: 3
+            timeout: 5s
+
+networks:
+    my_bridge_net:
+        driver: bridge
+volumes:
+    soccer-redis:
+        driver: local
